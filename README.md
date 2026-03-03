@@ -1,57 +1,111 @@
-import streamlit as st
-import google.generativeai as genai
-from PIL import Image
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Vision AI Assistant</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0e1117; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #262730; padding: 20px; text-align: center; border-bottom: 1px solid #444; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .message { padding: 12px 18px; border-radius: 10px; max-width: 85%; line-height: 1.5; font-size: 15px; }
+        .user { background: #2b313e; align-self: flex-end; border: 1px solid #444; }
+        .assistant { background: #1c1e26; align-self: flex-start; color: #00f2ff; border: 1px solid #333; }
+        .input-container { background: #262730; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .controls { display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 5px; border: 1px solid #444; background: #0e1117; color: white; outline: none; }
+        .file-label { cursor: pointer; background: #444; padding: 10px; border-radius: 5px; font-size: 20px; }
+        button { background: #ff4b4b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #img-preview { max-width: 100px; border-radius: 5px; display: none; margin-bottom: 10px; }
+        #api-setup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0e1117; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+    </style>
+</head>
+<body>
 
-# --- API KEY SETUP ---
-GOOGLE_API_KEY = "AIzaSyDRg62_K1Na7elDVFhVroay9C-Mk-I5rqs"
-genai.configure(api_key=GOOGLE_API_KEY)
+<div id="api-setup">
+    <h2>Enter Your New API Key</h2>
+    <input type="password" id="api-key-input" placeholder="Paste Gemini API Key..." style="width: 300px; margin-bottom: 20px; padding: 10px;">
+    <button onclick="saveKey()">Start AI Assistant</button>
+</div>
 
-# Model setup (Gemini 1.5 Flash image o bujhte pare)
-model = genai.GenerativeModel('gemini-1.5-flash')
+<div class="header">
+    <h1>📸 Gemini Vision AI</h1>
+    <p>শাহরিয়ার ভাইয়ের স্পেশাল অ্যাসিস্ট্যান্ট</p>
+</div>
 
-# --- WEBSITE UI ---
-st.set_page_config(page_title="Gemini Vision AI", page_icon="📸")
+<div id="chat-box">
+    <div class="message assistant">আসসালামু আলাইকুম! আমি শাহরিয়ার ভাইয়ের বানানো AI। আপনি ছবি আপলোড করেও আমার সাথে কথা বলতে পারেন।</div>
+</div>
 
-st.title("📸 Gemini Vision AI Assistant")
-st.write("Ekhon apni chobi upload koreo amar sathe kotha bolte parben!")
+<div class="input-container">
+    <img id="img-preview">
+    <div class="controls">
+        <label for="file-input" class="file-label">📸</label>
+        <input type="file" id="file-input" accept="image/*" style="display: none;">
+        <input type="text" id="user-input" placeholder="ছবির বিষয়ে কিছু লিখুন...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
 
-# Sidebar-e chobi upload korar option
-with st.sidebar:
-    st.header("Upload Section")
-    uploaded_file = st.file_uploader("Ekti chobi select korun...", type=["jpg", "jpeg", "png"])
-    if uploaded_file:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Apnar Upload kora chobi", use_column_width=True)
+<script>
+    let API_KEY = "";
+    let base64Image = "";
 
-# Chat History initialization
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+    function saveKey() {
+        const key = document.getElementById('api-key-input').value;
+        if (key) {
+            API_KEY = key;
+            document.getElementById('api-setup').style.display = 'none';
+        }
+    }
 
-# Purono messages display
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    document.getElementById('file-input').onchange = function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            base64Image = event.target.result.split(',')[1];
+            const preview = document.getElementById('img-preview');
+            preview.src = event.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    };
 
-# User Input
-if prompt := st.chat_input("Chobi-ti niye kichu jiggesh korun..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const box = document.getElementById('chat-box');
+        const text = input.value.trim();
         
-        try:
-            # Jodi chobi upload kora thake, tobe chobi + text eksathe pathano hobe
-            if uploaded_file:
-                response = model.generate_content([prompt, image])
-            else:
-                response = model.generate_content(prompt)
-                
-            full_response = response.text
-            message_placeholder.markdown(full_response)
-        except Exception as e:
-            full_response = "Dukkhito, chobi-ti analyze korte somossa hochhe."
-            st.error(f"Error: {e}")
+        if (!text && !base64Image) return;
 
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
+        // User display
+        box.innerHTML += `<div class="message user">${text}</div>`;
+        input.value = "";
+        document.getElementById('img-preview').style.display = 'none';
+        box.scrollTop = box.scrollHeight;
+
+        const parts = [{ text: "তুমি শাহরিয়ার ভাইয়ের বানানো AI। উত্তর দাও: " + text }];
+        if (base64Image) {
+            parts.push({ inline_data: { mime_type: "image/jpeg", data: base64Image } });
+        }
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: parts }] })
+            });
+
+            const data = await response.json();
+            const aiReply = data.candidates[0].content.parts[0].text;
+            box.innerHTML += `<div class="message assistant">${aiReply}</div>`;
+            base64Image = ""; // Reset image
+        } catch (error) {
+            box.innerHTML += `<div class="message assistant" style="color:red">দুঃখিত, কোনো সমস্যা হয়েছে। দয়া করে সঠিক API Key ব্যবহার করুন।</div>`;
+        }
+        box.scrollTop = box.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
