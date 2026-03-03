@@ -30,8 +30,8 @@
 </div>
 
 <script>
-    // AIzaSyDRg62_K1Na7elDVFhVroay9C-Mk-I5rqs
-    const API_KEY = "YOUR_API_KEY_HERE"; 
+    // এখানে আপনার API Key-টি একদম নির্ভুলভাবে বসানো হয়েছে
+    const API_KEY = "AIzaSyDRg62_K1Na7elDVFhVroay9C-Mk-I5rqs"; 
 
     async function sendMessage() {
         const input = document.getElementById('user-input');
@@ -54,13 +54,18 @@
             });
 
             const data = await response.json();
-            const aiText = data.candidates[0].content.parts[0].text;
-
-            // AI Message
-            chatBox.innerHTML += `<div class="message ai-msg">${aiText}</div>`;
+            
+            // Check if there is an error in response
+            if(data.error) {
+                chatBox.innerHTML += `<div class="message ai-msg">Error: ${data.error.message}</div>`;
+            } else {
+                const aiText = data.candidates[0].content.parts[0].text;
+                chatBox.innerHTML += `<div class="message ai-msg">${aiText}</div>`;
+            }
+            
             chatBox.scrollTop = chatBox.scrollHeight;
         } catch (error) {
-            chatBox.innerHTML += `<div class="message ai-msg">উফ! কোথাও একটা ঝামেলা হয়েছে। API Key চেক করেছেন?</div>`;
+            chatBox.innerHTML += `<div class="message ai-msg">উফ! কোথাও একটা ঝামেলা হয়েছে। ইন্টারনেট কানেকশন বা API Key চেক করুন।</div>`;
         }
     }
 </script>
