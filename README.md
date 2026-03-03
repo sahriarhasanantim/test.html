@@ -1,116 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Antim Pro Racing 3D</title>
+    <title>Antim Drive Pro | Cockpit Edition</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial', sans-serif; }
-        #container { width: 100vw; height: 100vh; }
-        #ui { position: absolute; top: 20px; left: 20px; color: #00d4ff; font-size: 24px; font-weight: bold; text-shadow: 0 0 10px #00d4ff; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
         
-        /* Mobile Controls */
-        .controls { position: absolute; bottom: 40px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; }
-        .btn { 
-            width: 80px; height: 80px; background: rgba(0, 212, 255, 0.2); 
-            border: 2px solid #00d4ff; border-radius: 50%; color: white; 
-            font-size: 30px; display: flex; align-items: center; justify-content: center;
-            pointer-events: auto; -webkit-user-select: none;
+        /* 3D Environment Container */
+        #world { width: 100vw; height: 100vh; perspective: 1000px; background: linear-gradient(#1a1a2e, #16213e); }
+
+        /* Road */
+        #road {
+            position: absolute; bottom: 0; left: 50%; width: 2000px; height: 3000px;
+            background: repeating-linear-gradient(#333 0, #333 100px, #444 100px, #444 200px);
+            transform: translateX(-50%) rotateX(75deg);
+            transform-origin: bottom;
+            animation: drive 1s linear infinite;
         }
-        .btn:active { background: #00d4ff; }
+
+        @keyframes drive {
+            from { transform: translateX(-50%) rotateX(75deg) translateY(0); }
+            to { transform: translateX(-50%) rotateX(75deg) translateY(200px); }
+        }
+
+        /* Cockpit View (Dashboard) */
+        #cockpit {
+            position: absolute; bottom: 0; width: 100%; height: 50%;
+            background: linear-gradient(transparent, #000);
+            z-index: 100; pointer-events: none;
+        }
+
+        .dashboard {
+            position: absolute; bottom: 0; width: 100%; height: 180px;
+            background: #111; border-top: 5px solid #222;
+            display: flex; justify-content: center; align-items: flex-end;
+            padding-bottom: 20px;
+        }
+
+        .speedometer {
+            width: 120px; height: 120px; border: 4px solid #00f2ff;
+            border-radius: 50%; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: #00f2ff;
+            box-shadow: 0 0 15px #00f2ff; margin: 0 50px;
+        }
+
+        /* Steering Wheel */
+        .steering-wheel {
+            width: 150px; height: 150px; border: 15px solid #333;
+            border-radius: 50%; border-top-color: #00f2ff;
+            transition: transform 0.2s; position: absolute; bottom: 60px;
+        }
+
+        /* Controls */
+        .controls { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 200; }
+        .btn { width: 80px; height: 80px; background: rgba(0, 242, 255, 0.2); border: 2px solid #00f2ff; border-radius: 50%; color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-    <div id="ui">SPEED: <span id="speed">0</span> KM/H</div>
-    <div id="container"></div>
-
-    <div class="controls">
-        <div class="btn" id="left">◀</div>
-        <div class="btn" id="right">▶</div>
+    <div id="world">
+        <div id="road"></div>
+        
+        <div id="traffic" style="position: absolute; top: 30%; left: 45%; width: 100px; height: 150px; background: #ff0044; transform: rotateX(75deg); border-radius: 10px;"></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <div id="cockpit">
+        <div style="display: flex; justify-content: center;">
+            <div id="wheel" class="steering-wheel"></div>
+        </div>
+        <div class="dashboard">
+            <div class="speedometer">
+                <div style="font-size: 10px;">KM/H</div>
+                <div id="speed" style="font-size: 30px; font-weight: bold;">85</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="btn" id="lBtn">❮</div>
+        <div class="btn" id="rBtn">❯</div>
+    </div>
 
     <script>
-        let scene, camera, renderer, car, road;
-        let speed = 0;
-        let targetX = 0;
-        let score = 0;
+        const road = document.getElementById('road');
+        const wheel = document.getElementById('wheel');
+        const speedText = document.getElementById('speed');
+        const traffic = document.getElementById('traffic');
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x020205);
-            scene.fog = new THREE.Fog(0x020205, 10, 50);
+        let posX = -50; // Road centering
+        let rotation = 0;
+        let speed = 85;
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 2, 6);
-            camera.rotation.x = -0.2;
+        // Steering Logic
+        document.getElementById('lBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            posX += 5;
+            rotation -= 30;
+            updateDrive();
+        });
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            document.getElementById('container').appendChild(renderer.domElement);
+        document.getElementById('rBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            posX -= 5;
+            rotation += 30;
+            updateDrive();
+        });
 
-            // Lighting
-            const light = new THREE.DirectionalLight(0xffffff, 1);
-            light.position.set(0, 10, 10);
-            scene.add(light);
-            scene.add(new THREE.AmbientLight(0x404040, 2));
-
-            // Road Construction
-            const roadGeo = new THREE.PlaneGeometry(10, 1000);
-            const roadMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-            road = new THREE.Mesh(roadGeo, roadMat);
-            road.rotation.x = -Math.PI / 2;
-            scene.add(road);
-
-            // Road Lines
-            const lineGeo = new THREE.PlaneGeometry(0.2, 1000);
-            const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const line = new THREE.Mesh(lineGeo, lineMat);
-            line.rotation.x = -Math.PI / 2;
-            line.position.y = 0.01;
-            scene.add(line);
-
-            // Player Car (3D Box Model)
-            const carBody = new THREE.BoxGeometry(1, 0.5, 2);
-            const carMat = new THREE.MeshStandardMaterial({ color: 0x00d4ff, metalness: 0.8, roughness: 0.2 });
-            car = new THREE.Mesh(carBody, carMat);
-            car.position.y = 0.3;
-            scene.add(car);
-
-            animate();
+        function updateDrive() {
+            road.style.transform = `translateX(${posX}%) rotateX(75deg)`;
+            wheel.style.transform = `rotate(${rotation}deg)`;
+            
+            // Random speed fluctuations
+            speed = 80 + Math.floor(Math.random() * 20);
+            speedText.innerText = speed;
         }
 
-        function animate() {
-            requestAnimationFrame(animate);
+        // Simple Traffic AI
+        let trafficPos = 30;
+        setInterval(() => {
+            trafficPos += 1;
+            if(trafficPos > 100) trafficPos = -20;
+            traffic.style.top = trafficPos + '%';
+        }, 30);
 
-            // Speed & Score
-            speed = 120;
-            document.getElementById('speed').innerText = speed;
-
-            // Move Road
-            road.position.z += 1;
-            if(road.position.z > 50) road.position.z = 0;
-
-            // Car Movement Smoothing
-            car.position.x += (targetX - car.position.x) * 0.1;
-            car.rotation.z = (car.position.x - targetX) * 0.5; // Tilting effect
-
-            renderer.render(scene, camera);
-        }
-
-        // Controls
-        document.getElementById('left').ontouchstart = () => { if(targetX > -4) targetX -= 2; };
-        document.getElementById('right').ontouchstart = () => { if(targetX < 4) targetX += 2; };
-
-        // Handle Resize
-        window.onresize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        };
-
-        init();
     </script>
 </body>
 </html>
