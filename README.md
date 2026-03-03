@@ -3,22 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antim AI - Your Assistant</title>
+    <title>Antim AI - Ultra Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        #chat-container { width: 95%; max-width: 500px; background: #1e293b; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; height: 85vh; border: 1px solid rgba(56, 189, 248, 0.2); }
-        .header { background: #38bdf8; color: #000; padding: 20px; text-align: center; font-weight: 800; font-size: 1.2rem; letter-spacing: 1px; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-        .message { padding: 12px 18px; border-radius: 15px; max-width: 85%; font-size: 0.95rem; line-height: 1.5; }
-        .user-msg { background: #38bdf8; color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .ai-msg { background: #334155; color: #fff; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .input-area { display: flex; padding: 15px; background: #0f172a; gap: 10px; border-top: 1px solid #334155; }
-        input { flex: 1; padding: 14px; border: none; border-radius: 12px; background: #1e293b; color: white; outline: none; font-size: 1rem; }
-        button { padding: 0 25px; background: #38bdf8; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:hover { background: #0ea5e9; }
-        /* Scrollbar styling */
-        #chat-box::-webkit-scrollbar { width: 5px; }
-        #chat-box::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0f1a; color: white; margin: 0; display: flex; justify-content: center; height: 100vh; }
+        #chat-container { width: 100%; max-width: 600px; display: flex; flex-direction: column; background: #161b22; position: relative; }
+        .header { background: #38bdf8; color: #000; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; line-height: 1.5; font-size: 15px; word-wrap: break-word; }
+        .user { background: #38bdf8; color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .ai { background: #2d333b; color: #f0f6fc; align-self: flex-start; border-bottom-left-radius: 2px; white-space: pre-wrap; }
+        
+        /* Image Preview Style */
+        .img-preview { max-width: 200px; border-radius: 10px; margin-top: 5px; display: block; }
+
+        .input-area { padding: 15px; background: #0b0f1a; display: flex; flex-direction: column; gap: 10px; }
+        .controls { display: flex; gap: 10px; align-items: center; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 25px; border: none; background: #2d333b; color: white; outline: none; font-size: 15px; }
+        
+        .icon-btn { background: #38bdf8; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.3s; }
+        .icon-btn:hover { background: #0ea5e9; }
+        #file-input { display: none; }
+        .file-label { background: #2d333b; color: #38bdf8; padding: 10px; border-radius: 50%; cursor: pointer; border: 1px solid #38bdf8; }
     </style>
 </head>
 <body>
@@ -26,53 +32,87 @@
 <div id="chat-container">
     <div class="header">Your AI Assistant</div>
     <div id="chat-box">
-        <div class="message ai-msg">আসসালামু আলাইকুম! আমি শাহরিয়ার ভাইয়ের বানানো AI। আপনাকে কীভাবে সাহায্য করতে পারি?</div>
+        <div class="msg ai">আসসালামু আলাইকুম! আমি শাহরিয়ার ভাইয়ের বানানো AI। আপনি আমাকে লিখে বা ছবি দিয়ে যেকোনো প্রশ্ন করতে পারেন।</div>
     </div>
+
     <div class="input-area">
-        <input type="text" id="user-input" placeholder="এখানে কিছু লিখুন..." onkeypress="if(event.key === 'Enter') sendMessage()">
-        <button onclick="sendMessage()">Send</button>
+        <div id="preview-container"></div>
+        <div class="controls">
+            <label for="file-input" class="file-label">📷</label>
+            <input type="file" id="file-input" accept="image/*">
+            <input type="text" id="user-input" placeholder="এখানে লিখুন...">
+            <button class="icon-btn" onclick="sendMessage()">➤</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // আপনার API Key
-    const API_KEY = "AIzaSyDRg62_K1Na7elDVFhVroay9C-Mk-I5rqs"; 
+    const API_KEY = "AIzaSyDRg62_K1Na7elDVFhVroay9C-Mk-I5rqs";
+    let selectedImageBase64 = null;
+
+    // Handle Image Selection
+    document.getElementById('file-input').onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            selectedImageBase64 = event.target.result.split(',')[1];
+            document.getElementById('preview-container').innerHTML = 
+                `<img src="${event.target.result}" style="width:50px; height:50px; border-radius:5px; border:1px solid #38bdf8;">`;
+        };
+        reader.readAsDataURL(file);
+    };
 
     async function sendMessage() {
         const input = document.getElementById('user-input');
-        const chatBox = document.getElementById('chat-box');
-        const userText = input.value.trim();
+        const box = document.getElementById('chat-box');
+        const text = input.value.trim();
         
-        if (!userText) return;
+        if (!text && !selectedImageBase64) return;
 
-        // User Message Display
-        chatBox.innerHTML += `<div class="message user-msg">${userText}</div>`;
+        // Display User Message
+        let userContent = text;
+        if(selectedImageBase64) {
+            box.innerHTML += `<div class="msg user"><img src="data:image/jpeg;base64,${selectedImageBase64}" class="img-preview"><br>${text}</div>`;
+        } else {
+            box.innerHTML += `<div class="msg user">${text}</div>`;
+        }
+
         input.value = "";
-        chatBox.scrollTop = chatBox.scrollHeight;
+        document.getElementById('preview-container').innerHTML = "";
+        box.scrollTop = box.scrollHeight;
+
+        const payload = {
+            contents: [{
+                parts: [
+                    { text: "তুমি শাহরিয়ার ভাইয়ের বানানো AI। সব প্রশ্নের উত্তর বন্ধুসুলভভাবে দিবে। প্রশ্ন: " + text }
+                ]
+            }]
+        };
+
+        if (selectedImageBase64) {
+            payload.contents[0].parts.push({
+                inline_data: { mime_type: "image/jpeg", data: selectedImageBase64 }
+            });
+        }
+
+        selectedImageBase64 = null; // Clear image for next msg
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: userText }] }]
-                })
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
             });
 
-            const data = await response.json();
-            
-            if (data.error) {
-                chatBox.innerHTML += `<div class="message ai-msg" style="color: #ff4444;">দুঃখিত, এখন উত্তর দিতে পারছি না। আবার চেষ্টা করুন।</div>`;
-            } else {
-                const aiText = data.candidates[0].content.parts[0].text;
-                chatBox.innerHTML += `<div class="message ai-msg">${aiText}</div>`;
-            }
-            
-            chatBox.scrollTop = chatBox.scrollHeight;
-        } catch (error) {
-            chatBox.innerHTML += `<div class="message ai-msg">সার্ভারে সমস্যা হচ্ছে। দয়া করে ইন্টারনেট কানেকশন চেক করুন।</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
+            const data = await res.json();
+            const reply = data.candidates[0].content.parts[0].text;
+            box.innerHTML += `<div class="msg ai">${reply}</div>`;
+        } catch (e) {
+            box.innerHTML += `<div class="msg ai" style="color:#ff4444;">দুঃখিত ভাই, সার্ভারে সমস্যা হচ্ছে। API Key চেক করুন।</div>`;
         }
+        box.scrollTop = box.scrollHeight;
     }
 </script>
 
