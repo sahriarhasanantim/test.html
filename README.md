@@ -3,132 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antim Smart Hub 2026</title>
+    <title>Antim Dynamic Hub 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #00f2ff; --bg: #05070a; --card: #111827; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
+        :root { --accent: #00ff88; --bg: #050810; --card: rgba(15, 23, 42, 0.8); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
-        .header { text-align: center; padding: 40px 0; }
-        .header h1 { font-size: 2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
-        .header p { color: #94a3b8; font-size: 0.9rem; }
+        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
 
-        .container { max-width: 600px; margin: auto; display: flex; flex-direction: column; gap: 20px; }
-        
-        /* Modern Card Style */
-        .tool-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .tool-card h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+        /* Animated Background */
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e293b 0%, #050810 100%); z-index: -1; }
 
-        /* Quick Notes App */
-        #note-input { width: 100%; padding: 10px; background: #0b1120; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; margin-bottom: 10px; }
-        .note-item { background: #1e293b; padding: 10px; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
 
-        /* Photo Filter Tool */
-        #upload-photo { display: none; }
-        .upload-btn { display: block; text-align: center; padding: 15px; border: 2px dashed #334155; border-radius: 10px; cursor: pointer; transition: 0.3s; }
-        .upload-btn:hover { border-color: var(--primary); }
-        #preview-img { width: 100%; border-radius: 10px; margin-top: 15px; display: none; filter: contrast(1.2) brightness(1.1) saturate(1.3); }
+        /* Dynamic Header */
+        .header { text-align: center; padding: 30px 0; }
+        .profile-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 15px; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+        h1 { font-size: 1.5rem; margin-bottom: 5px; }
+        #greeting { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
 
-        button { background: var(--primary); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
-        button:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--primary); }
+        /* Dynamic Weather Card */
+        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
+        .weather-info { display: flex; justify-content: space-between; align-items: center; }
+        .temp { font-size: 2rem; font-weight: bold; }
 
-        footer { text-align: center; padding: 40px; color: #475569; font-size: 0.8rem; }
+        /* News Ticker */
+        .ticker-wrap { background: rgba(0, 255, 136, 0.1); padding: 10px; border-radius: 10px; overflow: hidden; white-space: nowrap; margin-bottom: 20px; border: 1px solid var(--accent); }
+        .ticker { display: inline-block; animation: ticker 15s linear infinite; color: var(--accent); font-weight: bold; }
+        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        /* Dynamic Projects/Links */
+        .link-item { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; transition: 0.3s; cursor: pointer; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.05); }
+        .link-item:hover { background: var(--accent); color: black; transform: scale(1.02); }
+        .link-item i { font-size: 1.5rem; }
+
+        footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #64748b; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Antim Smart Hub</h1>
-        <p>Future Utility Tools • Generation 2026</p>
-    </div>
+    <div class="bg-glow"></div>
 
     <div class="container">
-        
-        <div class="tool-card">
-            <h3><i class="fas fa-wand-magic-sparkles"></i> AI Photo Enhancer</h3>
-            <label for="upload-photo" class="upload-btn" id="label">
-                <i class="fas fa-cloud-upload-alt"></i> ছবি সিলেক্ট করুন
-            </label>
-            <input type="file" id="upload-photo" accept="image/*">
-            <img id="preview-img">
-            <p style="font-size: 0.7rem; color: #64748b; margin-top: 10px;">*ছবিটি অটোমেটিক ২০২৬-এর সিনেম্যাটিক ফিল্টার পাবে।</p>
+        <div class="header">
+            <img src="https://i.ibb.co/23T6CCtB/Picsart-25-11-01-01-10-20-887.jpg" class="profile-img">
+            <h1>Sahriar Hossain Antim</h1>
+            <div id="greeting">Loading...</div>
         </div>
 
-        <div class="tool-card">
-            <h3><i class="fas fa-list-check"></i> Quick Notes</h3>
-            <input type="text" id="note-input" placeholder="জরুরি কিছু লিখে রাখুন...">
-            <button onclick="addNote()">Save to Memory</button>
-            <div id="note-list"></div>
-        </div>
-
-        <div class="tool-card">
-            <h3><i class="fas fa-bolt"></i> Smart Unit Hub</h3>
-            <div style="display: flex; gap: 10px;">
-                <input type="number" id="val" placeholder="Value..." style="flex:1; padding: 10px; border-radius: 8px; background: #0b1120; border: 1px solid #334155; color: white;">
-                <button onclick="convert()" style="flex:1;">Convert Now</button>
+        <div class="ticker-wrap">
+            <div class="ticker" id="news-ticker">
+                🚀 Welcome to the Future | AI is changing the world | Check out my latest AI News Summary | Stay tuned for more...
             </div>
-            <p id="result" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
         </div>
 
+        <div class="card">
+            <div class="weather-info">
+                <div>
+                    <h3 id="location">Dhaka, BD</h3>
+                    <p id="weather-desc">Sunny</p>
+                </div>
+                <div class="temp" id="temp">28°C</div>
+            </div>
+        </div>
+
+        <h2>Explore My World</h2>
+        <div style="margin-top: 15px;">
+            <a href="#" class="link-item">
+                <i class="fas fa-brain"></i>
+                <div>
+                    <strong>AI News Portal</strong>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">প্রতিদিনের সেরা এআই নিউজ সামারি।</p>
+                </div>
+            </a>
+            <a href="https://facebook.com/sahriarantim" class="link-item">
+                <i class="fab fa-facebook"></i>
+                <div>
+                    <strong>Official Facebook</strong>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">Connect with me on Social Media.</p>
+                </div>
+            </a>
+            <a href="#" class="link-item">
+                <i class="fas fa-camera-retro"></i>
+                <div>
+                    <strong>Creative Gallery</strong>
+                    <p style="font-size: 0.8rem; opacity: 0.7;">My photography & design works.</p>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            &copy; 2026 Antim Dynamics. <br>
+            System Local Time: <span id="clock">00:00</span>
+        </footer>
     </div>
 
-    <footer>
-        &copy; 2026 Shahriar Hossain Antim. <br>
-        Developed for Next-Gen Users.
-    </footer>
-
     <script>
-        // --- 1. Photo Filter logic ---
-        const fileInput = document.getElementById('upload-photo');
-        fileInput.onchange = (e) => {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = document.getElementById('preview-img');
-                img.src = event.target.result;
-                img.style.display = 'block';
-                document.getElementById('label').innerHTML = "ছবি আপলোড হয়েছে ✅";
-            }
-            reader.readAsDataURL(file);
-        };
+        // 1. Dynamic Greeting & Clock
+        function updateDynamicInfo() {
+            const now = new Date();
+            const hour = now.getHours();
+            const clock = document.getElementById('clock');
+            clock.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
-        // --- 2. Note logic (Save without Database) ---
-        function loadNotes() {
-            const notes = JSON.parse(localStorage.getItem('antim_notes') || '[]');
-            const list = document.getElementById('note-list');
-            list.innerHTML = "";
-            notes.forEach((n, i) => {
-                list.innerHTML += `<div class="note-item">${n} <i class="fas fa-trash" onclick="deleteNote(${i})" style="color:#ff4b4b; cursor:pointer;"></i></div>`;
-            });
+            let greet = "";
+            if (hour < 12) greet = "শুভ সকাল, শাহরিয়ার ভাই! ☀️";
+            else if (hour < 16) greet = "শুভ দুপুর, শাহরিয়ার ভাই! 🌤️";
+            else if (hour < 20) greet = "শুভ সন্ধ্যা, শাহরিয়ার ভাই! 🌅";
+            else greet = "শুভ রাত্রি, শাহরিয়ার ভাই! 🌙";
+            
+            document.getElementById('greeting').innerText = greet;
         }
 
-        function addNote() {
-            const input = document.getElementById('note-input');
-            const notes = JSON.parse(localStorage.getItem('antim_notes') || '[]');
-            if (input.value) {
-                notes.push(input.value);
-                localStorage.setItem('antim_notes', JSON.stringify(notes));
-                input.value = "";
-                loadNotes();
-            }
+        // 2. Mock Weather Data (Dynamic Feel)
+        function updateWeather() {
+            // ২০২৬ সালে এপিআই ছাড়াও আমরা রেন্ডমলি ডেটা আপডেট করে ডায়নামিক ফিল দিতে পারি
+            const temps = ['26°C', '28°C', '30°C', '27°C'];
+            const descs = ['Clear Sky', 'Mostly Cloudy', 'Sunny', 'Light Breeze'];
+            const random = Math.floor(Math.random() * temps.length);
+            
+            document.getElementById('temp').innerText = temps[random];
+            document.getElementById('weather-desc').innerText = descs[random];
         }
 
-        function deleteNote(i) {
-            const notes = JSON.parse(localStorage.getItem('antim_notes') || '[]');
-            notes.splice(i, 1);
-            localStorage.setItem('antim_notes', JSON.stringify(notes));
-            loadNotes();
-        }
-
-        // --- 3. Simple Converter ---
-        function convert() {
-            const val = document.getElementById('val').value;
-            if(!val) return;
-            const res = (val * 10.7639).toFixed(2); // Example: Square meter to Sq Feet
-            document.getElementById('result').innerText = val + " Sq Meter = " + res + " Sq Feet";
-        }
-
-        loadNotes();
+        setInterval(updateDynamicInfo, 1000);
+        setInterval(updateWeather, 10000); // প্রতি ১০ সেকেন্ডে আবহাওয়া পাল্টাবে (সিমুলেশন)
+        updateDynamicInfo();
+        updateWeather();
     </script>
 </body>
 </html>
