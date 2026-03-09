@@ -3,78 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antim's Social Feed</title>
+    <title>Antim Smart Hub 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: white; padding: 20px; max-width: 500px; margin: auto; }
-        .post-input { background: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        textarea { width: 100%; height: 60px; background: #0f172a; color: white; border: 1px solid #334155; padding: 10px; border-radius: 5px; margin-top: 10px; outline: none; }
-        button { background: #38bdf8; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; margin-top: 10px; cursor: pointer; width: 100%; }
-        #feed { display: flex; flex-direction: column; gap: 15px; }
-        .post-card { background: #1e293b; padding: 15px; border-radius: 10px; border-left: 4px solid #38bdf8; }
-        .post-card h4 { margin: 0; color: #38bdf8; }
-        .post-card p { margin: 10px 0 0; font-size: 0.95rem; }
+        :root { --primary: #00f2ff; --bg: #05070a; --card: #111827; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; }
+        
+        .header { text-align: center; padding: 40px 0; }
+        .header h1 { font-size: 2rem; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
+        .header p { color: #94a3b8; font-size: 0.9rem; }
+
+        .container { max-width: 600px; margin: auto; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Modern Card Style */
+        .tool-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .tool-card h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+
+        /* Quick Notes App */
+        #note-input { width: 100%; padding: 10px; background: #0b1120; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; margin-bottom: 10px; }
+        .note-item { background: #1e293b; padding: 10px; border-radius: 5px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.9rem; }
+
+        /* Photo Filter Tool */
+        #upload-photo { display: none; }
+        .upload-btn { display: block; text-align: center; padding: 15px; border: 2px dashed #334155; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .upload-btn:hover { border-color: var(--primary); }
+        #preview-img { width: 100%; border-radius: 10px; margin-top: 15px; display: none; filter: contrast(1.2) brightness(1.1) saturate(1.3); }
+
+        button { background: var(--primary); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; }
+        button:hover { transform: scale(1.02); box-shadow: 0 0 15px var(--primary); }
+
+        footer { text-align: center; padding: 40px; color: #475569; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <h2>Antim's Feed 🌍</h2>
-
-    <div class="post-input">
-        <input type="text" id="username" placeholder="আপনার নাম..." style="width:100%; padding:8px; background:#0f172a; color:white; border:1px solid #334155; border-radius:5px;">
-        <textarea id="post-text" placeholder="কী ভাবছেন?"></textarea>
-        <button onclick="publishPost()">Post Now</button>
+    <div class="header">
+        <h1>Antim Smart Hub</h1>
+        <p>Future Utility Tools • Generation 2026</p>
     </div>
 
-    <div id="feed">
+    <div class="container">
+        
+        <div class="tool-card">
+            <h3><i class="fas fa-wand-magic-sparkles"></i> AI Photo Enhancer</h3>
+            <label for="upload-photo" class="upload-btn" id="label">
+                <i class="fas fa-cloud-upload-alt"></i> ছবি সিলেক্ট করুন
+            </label>
+            <input type="file" id="upload-photo" accept="image/*">
+            <img id="preview-img">
+            <p style="font-size: 0.7rem; color: #64748b; margin-top: 10px;">*ছবিটি অটোমেটিক ২০২৬-এর সিনেম্যাটিক ফিল্টার পাবে।</p>
         </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        <div class="tool-card">
+            <h3><i class="fas fa-list-check"></i> Quick Notes</h3>
+            <input type="text" id="note-input" placeholder="জরুরি কিছু লিখে রাখুন...">
+            <button onclick="addNote()">Save to Memory</button>
+            <div id="note-list"></div>
+        </div>
 
-        // --- আপনার Firebase Config এখানে বসাতে হবে ---
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+        <div class="tool-card">
+            <h3><i class="fas fa-bolt"></i> Smart Unit Hub</h3>
+            <div style="display: flex; gap: 10px;">
+                <input type="number" id="val" placeholder="Value..." style="flex:1; padding: 10px; border-radius: 8px; background: #0b1120; border: 1px solid #334155; color: white;">
+                <button onclick="convert()" style="flex:1;">Convert Now</button>
+            </div>
+            <p id="result" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
+        </div>
+
+    </div>
+
+    <footer>
+        &copy; 2026 Shahriar Hossain Antim. <br>
+        Developed for Next-Gen Users.
+    </footer>
+
+    <script>
+        // --- 1. Photo Filter logic ---
+        const fileInput = document.getElementById('upload-photo');
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = document.getElementById('preview-img');
+                img.src = event.target.result;
+                img.style.display = 'block';
+                document.getElementById('label').innerHTML = "ছবি আপলোড হয়েছে ✅";
+            }
+            reader.readAsDataURL(file);
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // পোস্ট করার ফাংশন
-        window.publishPost = async () => {
-            const name = document.getElementById('username').value;
-            const text = document.getElementById('post-text').value;
-
-            if (name && text) {
-                await addDoc(collection(db, "posts"), {
-                    username: name,
-                    content: text,
-                    timestamp: new Date()
-                });
-                document.getElementById('post-text').value = "";
-            } else { alert("দয়া করে নাম এবং লেখা দিন!"); }
-        };
-
-        // রিয়েল-টাইমে ডাটাবেস থেকে পোস্ট দেখানো
-        const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-        onSnapshot(q, (snapshot) => {
-            const feed = document.getElementById('feed');
-            feed.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                feed.innerHTML += `
-                    <div class="post-card">
-                        <h4>${data.username}</h4>
-                        <p>${data.content}</p>
-                    </div>
-                `;
+        // --- 2. Note logic (Save without Database) ---
+        function loadNotes() {
+            const notes = JSON.parse(localStorage.getItem('antim_notes') || '[]');
+            const list = document.getElementById('note-list');
+            list.innerHTML = "";
+            notes.forEach((n, i) => {
+                list.innerHTML += `<div class="note-item">${n} <i class="fas fa-trash" onclick="deleteNote(${i})" style="color:#ff4b4b; cursor:pointer;"></i></div>`;
             });
-        });
+        }
+
+        function addNote() {
+            const input = document.getElementById('note-input');
+            const notes = JSON.parse(localStorage.getItem('antim_notes') || '[]');
+            if (input.value) {
+                notes.push(input.value);
+                localStorage.setItem('antim_notes', JSON.stringify(notes));
+                input.value = "";
+                loadNotes();
+            }
+        }
+
+        function deleteNote(i) {
+            const notes = JSON.parse(localStorage.getItem('antim_notes') || '[]');
+            notes.splice(i, 1);
+            localStorage.setItem('antim_notes', JSON.stringify(notes));
+            loadNotes();
+        }
+
+        // --- 3. Simple Converter ---
+        function convert() {
+            const val = document.getElementById('val').value;
+            if(!val) return;
+            const res = (val * 10.7639).toFixed(2); // Example: Square meter to Sq Feet
+            document.getElementById('result').innerText = val + " Sq Meter = " + res + " Sq Feet";
+        }
+
+        loadNotes();
     </script>
 </body>
 </html>
