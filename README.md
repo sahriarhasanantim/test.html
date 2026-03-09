@@ -3,133 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antim Dynamic Hub 2026</title>
+    <title>Antim AI Hub | Dynamic News</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --accent: #00ff88; --bg: #050810; --card: rgba(15, 23, 42, 0.8); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        :root { --accent: #00ff88; --bg: #050810; --card: #111827; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; }
         
-        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--accent); margin-bottom: 5px; }
 
-        /* Animated Background */
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1e293b 0%, #050810 100%); z-index: -1; }
+        /* News Card */
+        .news-card { background: var(--card); padding: 20px; border-radius: 15px; border-left: 5px solid var(--accent); cursor: pointer; transition: 0.3s; margin-bottom: 15px; }
+        .news-card:hover { transform: translateY(-5px); background: #1e293b; }
+        .news-card h3 { margin: 0 0 10px; font-size: 1.1rem; }
+        .news-card p { font-size: 0.85rem; color: #94a3b8; }
 
-        .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        /* --- Dynamic Modal (The Interface) --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: #1e293b; width: 100%; max-width: 500px; padding: 30px; border-radius: 20px; position: relative; border: 1px solid var(--accent); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--accent); }
+        .modal h2 { color: var(--accent); margin-bottom: 15px; font-size: 1.4rem; }
+        .modal p { line-height: 1.6; color: #e2e8f0; }
 
-        /* Dynamic Header */
-        .header { text-align: center; padding: 30px 0; }
-        .profile-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 15px; box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
-        h1 { font-size: 1.5rem; margin-bottom: 5px; }
-        #greeting { color: var(--accent); font-weight: bold; font-size: 1.1rem; }
-
-        /* Dynamic Weather Card */
-        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); }
-        .weather-info { display: flex; justify-content: space-between; align-items: center; }
-        .temp { font-size: 2rem; font-weight: bold; }
-
-        /* News Ticker */
-        .ticker-wrap { background: rgba(0, 255, 136, 0.1); padding: 10px; border-radius: 10px; overflow: hidden; white-space: nowrap; margin-bottom: 20px; border: 1px solid var(--accent); }
-        .ticker { display: inline-block; animation: ticker 15s linear infinite; color: var(--accent); font-weight: bold; }
-        @keyframes ticker { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
-        /* Dynamic Projects/Links */
-        .link-item { background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; transition: 0.3s; cursor: pointer; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.05); }
-        .link-item:hover { background: var(--accent); color: black; transform: scale(1.02); }
-        .link-item i { font-size: 1.5rem; }
-
-        footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #64748b; }
+        footer { text-align: center; margin-top: 50px; font-size: 0.8rem; color: #64748b; }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
-    <div class="container">
-        <div class="header">
-            <img src="https://i.ibb.co/23T6CCtB/Picsart-25-11-01-01-10-20-887.jpg" class="profile-img">
-            <h1>Sahriar Hossain Antim</h1>
-            <div id="greeting">Loading...</div>
-        </div>
-
-        <div class="ticker-wrap">
-            <div class="ticker" id="news-ticker">
-                🚀 Welcome to the Future | AI is changing the world | Check out my latest AI News Summary | Stay tuned for more...
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="weather-info">
-                <div>
-                    <h3 id="location">Dhaka, BD</h3>
-                    <p id="weather-desc">Sunny</p>
-                </div>
-                <div class="temp" id="temp">28°C</div>
-            </div>
-        </div>
-
-        <h2>Explore My World</h2>
-        <div style="margin-top: 15px;">
-            <a href="#" class="link-item">
-                <i class="fas fa-brain"></i>
-                <div>
-                    <strong>AI News Portal</strong>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">প্রতিদিনের সেরা এআই নিউজ সামারি।</p>
-                </div>
-            </a>
-            <a href="https://facebook.com/sahriarantim" class="link-item">
-                <i class="fab fa-facebook"></i>
-                <div>
-                    <strong>Official Facebook</strong>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">Connect with me on Social Media.</p>
-                </div>
-            </a>
-            <a href="#" class="link-item">
-                <i class="fas fa-camera-retro"></i>
-                <div>
-                    <strong>Creative Gallery</strong>
-                    <p style="font-size: 0.8rem; opacity: 0.7;">My photography & design works.</p>
-                </div>
-            </a>
-        </div>
-
-        <footer>
-            &copy; 2026 Antim Dynamics. <br>
-            System Local Time: <span id="clock">00:00</span>
-        </footer>
+    <div class="header">
+        <h1>AI News Hub 2026</h1>
+        <p>Click any news to read summary</p>
     </div>
 
+    <div id="news-container">
+        <div class="news-card" onclick="openNews(1)">
+            <h3>🚀 OpenAI-এর নতুন ভিডিও মডেল</h3>
+            <p>২০২৬ সালের সবচেয়ে শক্তিশালী ভিডিও জেনারেটর নিয়ে এলো ওপেনএআই...</p>
+            <small style="color:var(--accent)">Read Summary →</small>
+        </div>
+
+        <div class="news-card" onclick="openNews(2)">
+            <h3>🤖 হিউম্যানয়েড রোবট এখন ঘরে ঘরে</h3>
+            <p>টেসলার নতুন রোবট এখন রান্নার কাজেও পারদর্শী হয়ে উঠছে...</p>
+            <small style="color:var(--accent)">Read Summary →</small>
+        </div>
+    </div>
+
+    <div id="newsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeNews()">&times;</span>
+            <h2 id="modalTitle">News Title</h2>
+            <hr style="border: 0.5px solid #334155; margin-bottom: 20px;">
+            <p id="modalBody">News details will appear here...</p>
+            <button onclick="closeNews()" style="margin-top: 20px; width: 100%; padding: 10px; background: var(--accent); border: none; border-radius: 10px; font-weight: bold; cursor: pointer;">Close Reading</button>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Sahriar Hossain Antim. Developed for Dynamic Experience.
+    </footer>
+
     <script>
-        // 1. Dynamic Greeting & Clock
-        function updateDynamicInfo() {
-            const now = new Date();
-            const hour = now.getHours();
-            const clock = document.getElementById('clock');
-            clock.innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        // --- Dynamic Content Data ---
+        const newsData = {
+            1: {
+                title: "OpenAI-এর নতুন ভিডিও মডেল",
+                body: "২০২৬ সালের এই নতুন মডেলটি দিয়ে এখন ১ ঘণ্টার পূর্ণাঙ্গ সিনেমা বানানো সম্ভব। এটি বাস্তব পৃথিবীর ফিজিক্স বুঝতে পারে এবং একশ শতাংশ রিয়েলিস্টিক ভিডিও আউটপুট দেয়। এটি এআই জগতের এক নতুন বিপ্লব।"
+            },
+            2: {
+                title: "হিউম্যানয়েড রোবট এখন ঘরে ঘরে",
+                body: "টেসলার অপ্টিমাস রোবট এখন সাধারণ মানুষের সাধ্যের মধ্যে চলে এসেছে। এটি ঘর পরিষ্কার করা থেকে শুরু করে আপনার সাথে গল্প করা পর্যন্ত সব কাজ করতে পারে। এটি সম্পূর্ণ ভয়েস কমান্ডে চলে।"
+            }
+        };
 
-            let greet = "";
-            if (hour < 12) greet = "শুভ সকাল, শাহরিয়ার ভাই! ☀️";
-            else if (hour < 16) greet = "শুভ দুপুর, শাহরিয়ার ভাই! 🌤️";
-            else if (hour < 20) greet = "শুভ সন্ধ্যা, শাহরিয়ার ভাই! 🌅";
-            else greet = "শুভ রাত্রি, শাহরিয়ার ভাই! 🌙";
-            
-            document.getElementById('greeting').innerText = greet;
+        // --- Functions to handle Interface ---
+        function openNews(id) {
+            const news = newsData[id];
+            document.getElementById('modalTitle').innerText = news.title;
+            document.getElementById('modalBody').innerText = news.body;
+            document.getElementById('newsModal').style.display = 'flex';
         }
 
-        // 2. Mock Weather Data (Dynamic Feel)
-        function updateWeather() {
-            // ২০২৬ সালে এপিআই ছাড়াও আমরা রেন্ডমলি ডেটা আপডেট করে ডায়নামিক ফিল দিতে পারি
-            const temps = ['26°C', '28°C', '30°C', '27°C'];
-            const descs = ['Clear Sky', 'Mostly Cloudy', 'Sunny', 'Light Breeze'];
-            const random = Math.floor(Math.random() * temps.length);
-            
-            document.getElementById('temp').innerText = temps[random];
-            document.getElementById('weather-desc').innerText = descs[random];
+        function closeNews() {
+            document.getElementById('newsModal').style.display = 'none';
         }
 
-        setInterval(updateDynamicInfo, 1000);
-        setInterval(updateWeather, 10000); // প্রতি ১০ সেকেন্ডে আবহাওয়া পাল্টাবে (সিমুলেশন)
-        updateDynamicInfo();
-        updateWeather();
+        // Close modal if user clicks outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('newsModal')) {
+                closeNews();
+            }
+        }
     </script>
 </body>
 </html>
